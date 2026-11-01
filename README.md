@@ -1,6 +1,6 @@
 # API de tareas
 
-Aplicación de laboratorio del curso SOFT-756 (Implementación de CI/CD y Prácticas DevOps). Es una
+Aplicación de laboratorio de un curso de CI/CD y prácticas DevOps. Es una
 API pequeña en Python (Flask) que guarda tareas en memoria. El código de la aplicación casi no
 cambia durante el curso: lo que crece es el **pipeline** que la construye, la prueba, la empaqueta
 y la despliega.
