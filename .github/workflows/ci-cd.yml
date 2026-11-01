@@ -178,11 +178,11 @@ jobs:
 
       - name: Guardar logs del contenedor
         if: always()
-        run: docker logs api > logs-staging.txt 2>&1 || echo "sin contenedor" > logs-staging.txt
+        run: docker logs api > logs-produccion.txt 2>&1 || echo "sin contenedor" > logs-produccion.txt
 
       - name: Publicar logs
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: logs-staging
-          path: logs-staging.txt
+          name: logs-produccion
+          path: logs-produccion.txt
