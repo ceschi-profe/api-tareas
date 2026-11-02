@@ -8,11 +8,17 @@ on:
         description: "SHA completo (40 caracteres) del commit cuya imagen se vuelve a desplegar"
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   rollback:
     name: Rollback en staging
     runs-on: ubuntu-latest
     environment: staging
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v7
 
@@ -29,7 +35,23 @@ jobs:
         run: echo "$TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
 
       - name: Desplegar la versión anterior
-        run: docker run -d --name api -p 8080:8000 -e APP_ENV=staging "$IMAGEN"
+        env:
+          APP_ENV: ${{ vars.APP_ENV || 'staging' }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+        run: docker run -d --name api -p 8080:8000 -e APP_ENV -e API_TOKEN "$IMAGEN"
 
       - name: Smoke test
+        env:
+          VERSION_ESPERADA: ${{ inputs.sha }}
         run: bash scripts/smoke.sh http://localhost:8080
+
+      - name: Guardar logs del contenedor
+        if: always()
+        run: docker logs api > logs-rollback.txt 2>&1 || echo "sin contenedor" > logs-rollback.txt
+
+      - name: Publicar logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: logs-rollback
+          path: logs-rollback.txt
